@@ -9,14 +9,16 @@
 #include "SysSysSnapshot.h"
 
 WinPerfMon::WinPerfMon(int internal) :
-	_sample_freq(internal), _query_handle(INVALID_HANDLE_VALUE), _cpuCounter(INVALID_HANDLE_VALUE), _memCounter(INVALID_HANDLE_VALUE),
-	_netReceive(INVALID_HANDLE_VALUE), _netSend(INVALID_HANDLE_VALUE)
+	_sample_freq(internal), _query_handle(INVALID_HANDLE_VALUE)
 {
+	_sysCounters.fill(INVALID_HANDLE_VALUE);
+	_netCounters.fill(INVALID_HANDLE_VALUE);
 	_procCpuCounters.fill(INVALID_HANDLE_VALUE);
 	_procKernalHandlerCounters.fill(INVALID_HANDLE_VALUE);
 	_procThreadCounters.fill(INVALID_HANDLE_VALUE);
 	_procVirtualMemoryCounters.fill(INVALID_HANDLE_VALUE);
-	InitSysCounter();
+	if (ERROR_SUCCESS != PdhOpenQuery(NULL, NULL, &_query_handle))
+		_query_handle = INVALID_HANDLE_VALUE;
 }
 
 WinPerfMon::~WinPerfMon()
@@ -28,7 +30,10 @@ WinPerfMon::~WinPerfMon()
 void WinPerfMon::AddCounter(const std::string& cmd, HCOUNTER* p_counter)
 {
 	if (INVALID_HANDLE_VALUE == _query_handle)
+	{
+		std::cout << "start query fail" << std::endl;
 		return;
+	}
 	std::wstring wcmd(L"");
 	SToWs(cmd, wcmd);
 	PDH_STATUS res = PdhAddCounter(_query_handle, wcmd.c_str(), NULL, p_counter);
@@ -39,19 +44,12 @@ void WinPerfMon::AddCounter(const std::string& cmd, HCOUNTER* p_counter)
 	}
 }
 
-void WinPerfMon::InitSysCounter()
+void WinPerfMon::AddSysCounter()
 {
-	PDH_STATUS res = PdhOpenQuery(NULL, NULL, &_query_handle);
-	if (ERROR_SUCCESS != res)
-	{
-		std::cout << "Create Query fail, " << res << std::endl;
-		return;
-	}
-	else
-	{
-		AddCounter("\\Processor Information(_Total)\\% Processor Time", &_cpuCounter);
-		AddCounter("\\Memory\\Available MBytes", &_memCounter);
-	}
+	AddCounter("\\Processor Information(_Total)\\% Processor Time", &_sysCounters[Sys_CPU_Time]);
+	AddCounter("\\Processor Information(0,_Total)\\% Processor Performance", &_sysCounters[Sys_CPU_Perf]);
+	AddCounter("\\Processor Information(0,_Total)\\Processor Frequency", &_sysCounters[Sys_CPU_Freq]);
+	AddCounter("\\Memory\\Available MBytes", &_sysCounters[Sys_Mem]);
 }
 
 void WinPerfMon::CloseQuery()
@@ -68,7 +66,7 @@ void WinPerfMon::CloseQuery()
 
 double WinPerfMon::GetCounterDoubleValue(HCOUNTER counter)
 {
-	double ret_value = -100.0;
+	double ret_value = ERROR_PERF_VALE;
 	if (INVALID_HANDLE_VALUE == counter)
 		return ret_value;
 	PDH_FMT_COUNTERVALUE pdhValue;
@@ -85,7 +83,7 @@ double WinPerfMon::GetCounterDoubleValue(HCOUNTER counter)
 	return ret_value;
 }
 
-double WinPerfMon::GetCountersDoubleValue(std::array<HCOUNTER, 100>& arr)
+double WinPerfMon::GetCountersDoubleValue(std::array<HCOUNTER, MAX_PROC_COUNT>& arr)
 {
 	double value = 0.0;
 	double tmp = 0.0;
@@ -104,45 +102,25 @@ void WinPerfMon::BlockCollectData()
 	PdhCollectQueryData(_query_handle);
 }
 
-double WinPerfMon::GetSysCPU()
-{
-	return GetCounterDoubleValue(_cpuCounter);
-}
-
-double WinPerfMon::GetTotalMem()
-{
-	return GetCounterDoubleValue(_memCounter);
-}
-
-double WinPerfMon::GetNetReceive()
-{
-	return GetCounterDoubleValue(_netReceive) / 1024;
-}
-
-double WinPerfMon::GetNetSend()
-{
-	return GetCounterDoubleValue(_netSend) / 1024;
-}
-
-void WinPerfMon::SetTargetNetAdapter(const std::string& name)
+void WinPerfMon::AddNetCounter(const std::string& net_adapter_name)
 {
 	if (INVALID_HANDLE_VALUE == _query_handle)
 		return;
-	std::string adapter(name);
-	if (name == "")
+	std::string adapter(net_adapter_name);
+	if (adapter == "")
 	{
 		SysSnapshot snapshot;
 		snapshot.GetNetAdapterName(adapter);
 	}
-	AddCounter("\\Network Interface(" + adapter + ")\\Bytes Received/sec", &_netReceive);
-	AddCounter("\\Network Interface(" + adapter + ")\\Bytes Sent/sec", &_netSend);
+	AddCounter("\\Network Interface(" + adapter + ")\\Bytes Received/sec", &_netCounters[Net_Received]);
+	AddCounter("\\Network Interface(" + adapter + ")\\Bytes Sent/sec", &_netCounters[Net_Sent]);
 }
 
 void WinPerfMon::InitProcessCounter(std::vector<std::string>& proc_lst)
 {
 	if (INVALID_HANDLE_VALUE == _query_handle)
 		return;
-	if (proc_lst.size() > 99)
+	if (proc_lst.size() >= MAX_PROC_COUNT)
 	{
 		std::cout << "to much child process" << std::endl;
 		return;
@@ -157,7 +135,7 @@ void WinPerfMon::InitProcessCounter(std::vector<std::string>& proc_lst)
 	}
 }
 
-void WinPerfMon::SetMonitProcess(const std::string& process_exe)
+void WinPerfMon::AddMonitProcessCounter(const std::string& process_exe)
 {
 
 	std::vector<std::string> proc_lst;
@@ -166,7 +144,7 @@ void WinPerfMon::SetMonitProcess(const std::string& process_exe)
 	InitProcessCounter(proc_lst);
 }
 
-void WinPerfMon::SetMonitProcess(DWORD pid)
+void WinPerfMon::AddMonitProcessCounter(DWORD pid)
 {
 	std::vector<std::string> proc_lst;
 	SysSnapshot snapshot;
@@ -174,29 +152,52 @@ void WinPerfMon::SetMonitProcess(DWORD pid)
 	InitProcessCounter(proc_lst);
 }
 
-double WinPerfMon::GetProcCPU()
-{
-	return GetCountersDoubleValue(_procCpuCounters);
-}
-
-double WinPerfMon::GetProcKernalHandleCount()
-{
-	return GetCountersDoubleValue(_procKernalHandlerCounters);
-}
-
-double WinPerfMon::GetProcThreadCount()
-{
-	return GetCountersDoubleValue(_procThreadCounters);
-}
-
-double WinPerfMon::GetProcVirtualMemory()
-{
-	return GetCountersDoubleValue(_procVirtualMemoryCounters) / 1024 / 1024;
-}
-
 void WinPerfMon::ReadSysInfo()
 {
 	GetSystemInfo(&_sys_info);
+}
+
+double WinPerfMon::GetSysPref(SysPerfField field)
+{
+	if ((field >= Sys_CPU_Time) && (field < Sys_Total))
+		return GetCounterDoubleValue(_sysCounters[field]);
+	return ERROR_PERF_VALE;
+}
+
+double WinPerfMon::GetNetPref(NetPerfField field)
+{
+	if ((field >= Net_Received) && (field < Net_Total))
+		return GetCounterDoubleValue(_netCounters[field]);
+	return ERROR_PERF_VALE;
+}
+
+double WinPerfMon::GetProcPref(ProcPerfField field)
+{
+	double ret = ERROR_PERF_VALE;
+	switch (field)
+	{
+	case Proc_CPU:
+		ret = GetCountersDoubleValue(_procCpuCounters);
+		break;
+	case Proc_Thread_Count:
+		ret = GetCountersDoubleValue(_procThreadCounters);
+		break;
+	case Proc_Kernal_Handle_Count:
+		ret = GetCountersDoubleValue(_procKernalHandlerCounters);
+		break;
+	case Proc_Virtual_Mem:
+		{
+			ret = GetCountersDoubleValue(_procVirtualMemoryCounters);
+			if (ret > 0.0)
+				ret = ret / M_;
+		}
+		break;
+	case Proc_Total:
+		break;
+	default:
+		break;
+	}
+	return ret;
 }
 
 DWORD WinPerfMon::GetCPUCount()

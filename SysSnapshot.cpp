@@ -12,12 +12,12 @@
 bool SysSnapshot::GetNetAdapterName(std::string& ret)
 {
 	ULONG ulSize = 0;
-	IP_ADAPTER_INFO *pAdapter = nullptr;
-	PDH_STATUS res = GetAdaptersInfo(pAdapter, &ulSize);
+	std::shared_ptr<IP_ADAPTER_INFO> pAdapterArr = nullptr;
+	PDH_STATUS res = GetAdaptersInfo(pAdapterArr.get(), &ulSize);
 	if (ERROR_BUFFER_OVERFLOW == res)
 	{
-		pAdapter = new IP_ADAPTER_INFO[ulSize];
-		res = GetAdaptersInfo(pAdapter, &ulSize);
+		pAdapterArr.reset(new IP_ADAPTER_INFO[ulSize]);
+		res = GetAdaptersInfo(pAdapterArr.get(), &ulSize);
 	}
 	if (ERROR_SUCCESS != res)
 	{
@@ -30,7 +30,7 @@ bool SysSnapshot::GetNetAdapterName(std::string& ret)
 	if (NO_ERROR != nRet)
 		std::cout << "Get Best Interface fail: " << nRet << std::endl;
 	bool find = false;
-	for (auto *pCur = pAdapter; pCur != NULL; pCur = pCur->Next) {
+	for (auto *pCur = pAdapterArr.get(); pCur != NULL; pCur = pCur->Next) {
 		if (pCur->Index == dwIndex) {
 			ret = pCur->Description;
 			std::replace(ret.begin(), ret.end(), '(', '[');
@@ -40,7 +40,6 @@ bool SysSnapshot::GetNetAdapterName(std::string& ret)
 			break;
 		}
 	}
-	delete[] pAdapter;
 	return find;
 }
 

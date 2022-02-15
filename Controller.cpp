@@ -2,11 +2,12 @@
 #include "Controller.h"
 
 #include <iostream>
-
-#include "configor/json.hpp"
+#include <array>
 
 #include "WinPerfMon.h"
 #include "Help.h"
+#include "PerfMonDataDef.h"
+#include "WinPerfMonDataHandler.h"
 
 Controller::~Controller()
 {
@@ -51,33 +52,41 @@ void Controller::StopLoop()
 void Controller::Work()
 {
 	if (this->_sample_freq < 1)
-		return;
+		this->_sample_freq = 1;
+	std::cout << this->_proc_pid << " \ " << this->_proc_name << " \ " << this->_net_adapter << std::endl;
 	WinPerfMon monitor(this->_sample_freq);
 	if (this->_proc_pid > 0)
-		monitor.SetMonitProcess(this->_proc_pid);
+		monitor.AddMonitProcessCounter(this->_proc_pid);
 	else if (this->_proc_name != "")
-		monitor.SetMonitProcess(this->_proc_name);
+		monitor.AddMonitProcessCounter(this->_proc_name);
 	else
 		return;
-	std::cout << this->_proc_pid << " \ " << this->_proc_name << " \ " << this->_net_adapter << std::endl;
-	monitor.SetTargetNetAdapter(this->_net_adapter);
+	monitor.AddSysCounter();
+	monitor.AddNetCounter(this->_net_adapter);
 	monitor.ReadSysInfo();
-	double sys_cpu = 0.0, proc_cpu = 0.0;
-	configor::json json_obj;
+	std::array<double, Sys_Total> sys_arry;
+	std::array<double, Proc_Total> proc_arry;
+	std::array<double, Net_Total> net_arry;
+	WinPerfMonDataHandler dataHandler;
+	dataHandler.OpenCsvFile();
+	time_t time = 0;
+	int cpu_cout = monitor.GetCPUCount();
 	while (_run)
 	{
 		monitor.BlockCollectData();
-		json_obj.clear();
-		json_obj["time"] = LocalTimeStampNow();
-		sys_cpu = monitor.GetSysCPU();
-		json_obj["sys_cpu"] = sys_cpu;
-		json_obj["sys_available_mem"] = monitor.GetTotalMem();
-		json_obj["net_receive"] = monitor.GetNetReceive();
-		json_obj["net_send"] = monitor.GetNetSend();
-		json_obj["proc_cpu"] = monitor.GetProcCPU();
-		json_obj["proc_virtual_mem"] = monitor.GetProcVirtualMemory();
-		json_obj["proc_kernal_handle_count"] = monitor.GetProcKernalHandleCount();
-		json_obj["proc_thread_count"] = monitor.GetProcThreadCount();
-		std::cout << json_obj << std::endl;
+		time = LocalTimeStampNow();
+		sys_arry[Sys_CPU_Time] = monitor.GetSysPref(Sys_CPU_Time);
+		sys_arry[Sys_CPU_Perf] = monitor.GetSysPref(Sys_CPU_Perf);
+		sys_arry[Sys_CPU_Freq] = monitor.GetSysPref(Sys_CPU_Freq);
+		sys_arry[Sys_Mem] = monitor.GetSysPref(Sys_Mem);
+		net_arry[Net_Received] = monitor.GetNetPref(Net_Received);
+		net_arry[Net_Sent] = monitor.GetNetPref(Net_Sent);
+		proc_arry[Proc_CPU] = monitor.GetProcPref(Proc_CPU);
+		proc_arry[Proc_Thread_Count] = monitor.GetProcPref(Proc_Thread_Count);
+		proc_arry[Proc_Kernal_Handle_Count] = monitor.GetProcPref(Proc_Kernal_Handle_Count);
+		proc_arry[Proc_Virtual_Mem] = monitor.GetProcPref(Proc_Virtual_Mem);
+		dataHandler.WriteSysPrefLine(sys_arry, time);
+		dataHandler.WriteNetPrefLine(net_arry, time);
+		dataHandler.WriteProcPrefLine(proc_arry, time);
 	}
 }

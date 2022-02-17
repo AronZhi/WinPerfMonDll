@@ -14,11 +14,6 @@ enum SysPerfField
 	Sys_Total
 };
 
-enum SysPerfField2
-{
-	Sys_CPU_Perf_Avg = Sys_Total
-};
-
 enum NetPerfField
 {
 	Net_Received = 0,

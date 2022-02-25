@@ -1,6 +1,7 @@
 #pragma once
 
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <array>
 
@@ -10,10 +11,13 @@ class WinPerfMonDataHandler
 {
 private:
 	std::ofstream _proc_csv;
+	std::stringstream _proc_cache;
 	int _proc_line;
 	std::ofstream _sys_csv;
+	std::stringstream _sys_cache;
 	int _sys_line;
 	std::ofstream _net_csv;
+	std::stringstream _net_cache;
 	int _net_line;
 
 public:

@@ -176,7 +176,7 @@ double WinPerfMon::GetProcPref(ProcPerfField field)
 	double ret = ERROR_PERF_VALE;
 	switch (field)
 	{
-	case Proc_CPU:
+	case Proc_CPU_Time:
 		ret = GetCountersDoubleValue(_procCpuCounters);
 		break;
 	case Proc_Thread_Count:

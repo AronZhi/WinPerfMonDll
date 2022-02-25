@@ -23,7 +23,7 @@ enum NetPerfField
 
 enum ProcPerfField
 {
-	Proc_CPU = 0,
+	Proc_CPU_Time = 0,
 	Proc_Thread_Count,
 	Proc_Kernal_Handle_Count,
 	Proc_Virtual_Mem,

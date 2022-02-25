@@ -81,7 +81,7 @@ void Controller::Work()
 		sys_arry[Sys_Mem] = monitor.GetSysPref(Sys_Mem);
 		net_arry[Net_Received] = monitor.GetNetPref(Net_Received);
 		net_arry[Net_Sent] = monitor.GetNetPref(Net_Sent);
-		proc_arry[Proc_CPU] = monitor.GetProcPref(Proc_CPU);
+		proc_arry[Proc_CPU_Time] = monitor.GetProcPref(Proc_CPU_Time);
 		proc_arry[Proc_Thread_Count] = monitor.GetProcPref(Proc_Thread_Count);
 		proc_arry[Proc_Kernal_Handle_Count] = monitor.GetProcPref(Proc_Kernal_Handle_Count);
 		proc_arry[Proc_Virtual_Mem] = monitor.GetProcPref(Proc_Virtual_Mem);

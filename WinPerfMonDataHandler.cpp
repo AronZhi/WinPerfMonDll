@@ -41,8 +41,11 @@ void WinPerfMonDataHandler::OpenCsvFile(const std::string& name)
 	if (name == "")
 		file_name = std::to_string(LocalTimeStampNow());
 	_proc_csv.open((file_name + "_proc.csv").c_str(), std::ios::out | std::ios::app);
+	_proc_csv << "Time_Stamp," << "CPU_Time," << "Thread_Count," << "Kernal_Handle_Count," << "Virtual_Mem" << "\n";
 	_sys_csv.open((file_name + "_sys.csv").c_str(), std::ios::out | std::ios::app);
+	_sys_csv << "Time_Stamp," << "CPU_Time," << "CPU_Perf," << "CPU_Freq," << "Mem" << "\n";
 	_net_csv.open((file_name + "_net.csv").c_str(), std::ios::out | std::ios::app);
+	_net_csv << "Time_Stamp," << "Received," << "Sent" << "\n";
 }
 
 void WinPerfMonDataHandler::WriteSysPrefLine(const std::array<double, Sys_Total>& datas, time_t time_stamp)
@@ -50,7 +53,7 @@ void WinPerfMonDataHandler::WriteSysPrefLine(const std::array<double, Sys_Total>
 	_sys_cache << time_stamp << ",";
 	for (int i = 0; i < Sys_Total; i++)
 	{
-		datas[i] > 0.0 ? _sys_cache << datas[i] : _sys_cache << " ";
+		datas[i] > 0.0 ? _sys_cache << datas[i] : _sys_cache << "";
 		i == (Sys_Total - 1) ? _sys_cache << "\n" : _sys_cache << ",";
 	}
 	/*
@@ -71,7 +74,7 @@ void WinPerfMonDataHandler::WriteNetPrefLine(const std::array<double, Net_Total>
 	_net_cache << time_stamp << ",";
 	for (int i = 0; i < Net_Total; i++)
 	{
-		datas[i] > 0.0 ? _net_cache << datas[i] : _net_cache << " ";
+		datas[i] > 0.0 ? _net_cache << datas[i] : _net_cache << "";
 		i == (Net_Total - 1) ? _net_cache << "\n" : _net_cache << ",";
 	}
 	_net_line += 1;
@@ -88,7 +91,7 @@ void WinPerfMonDataHandler::WriteProcPrefLine(const std::array<double, Proc_Tota
 	_proc_cache << time_stamp << ",";
 	for (int i = 0; i < Proc_Total; i++)
 	{
-		datas[i] > 0.0 ? _proc_cache << datas[i] : _proc_cache << " ";
+		datas[i] > 0.0 ? _proc_cache << datas[i] : _proc_cache << "";
 		i == (Proc_Total - 1) ? _proc_cache << "\n" : _proc_cache << ",";
 	}
 	_proc_line += 1;

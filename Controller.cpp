@@ -32,7 +32,7 @@ bool Controller::StartLoop()
 	return false;
 }
 
-void Controller::StopLoop()
+int Controller::StopLoop()
 {
 	try
 	{
@@ -46,14 +46,15 @@ void Controller::StopLoop()
 	{
 		std::cout << e.what() << std::endl;
 		std::cout << "stop thread fail, please restart process" << std::endl;
-	}	
+		return -1;
+	}
+	return 0;
 }
 
 void Controller::Work()
 {
 	if (this->_sample_freq < 1)
 		this->_sample_freq = 1;
-	std::cout << this->_proc_pid << " \ " << this->_proc_name << " \ " << this->_net_adapter << std::endl;
 	WinPerfMon monitor(this->_sample_freq);
 	if (this->_proc_pid > 0)
 		monitor.AddMonitProcessCounter(this->_proc_pid);
@@ -68,7 +69,7 @@ void Controller::Work()
 	std::array<double, Proc_Total> proc_arry;
 	std::array<double, Net_Total> net_arry;
 	WinPerfMonDataHandler dataHandler;
-	dataHandler.OpenCsvFile();
+	dataHandler.OpenCsvFile(this->_task_name);
 	time_t time = 0;
 	int cpu_cout = monitor.GetCPUCount();
 	while (_run)

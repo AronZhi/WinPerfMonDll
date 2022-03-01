@@ -11,9 +11,11 @@ extern "C"
 {
 	DLL_API void SetProcName(const char* name);
 	DLL_API void SetProcPid(int Pid);
+	DLL_API void SetTaskName(const char* name);
+	DLL_API void SetSampleFrequence(int second);
 	DLL_API void SetNetAdapter(const char* name);
 	DLL_API bool Start(void);
-	DLL_API void Stop(void);
+	DLL_API int Stop(void);
 }
 
 

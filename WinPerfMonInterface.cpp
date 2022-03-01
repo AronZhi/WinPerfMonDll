@@ -21,12 +21,26 @@ void  SetNetAdapter(const char* name)
 	Controller::GetInstance().SetNetAdapter(name);
 }
 
+void SetTaskName(const char* name)
+{
+	if (NULL == name)
+		return;
+	Controller::GetInstance().SetTaskName(name);
+}
+
+void SetSampleFrequence(int second)
+{
+	if (second < 2)
+		return
+	Controller::GetInstance().SetSampleFrequence(second);
+}
+
 bool  Start()
 {
 	return Controller::GetInstance().StartLoop();
 }
 
-void Stop()
+int Stop()
 {
 	return Controller::GetInstance().StopLoop();
 }

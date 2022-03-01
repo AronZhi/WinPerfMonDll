@@ -48,12 +48,11 @@ void WinPerfMonDataHandler::OpenCsvFile(const std::string& name)
 void WinPerfMonDataHandler::WriteSysPrefLine(const std::array<double, Sys_Total>& datas, time_t time_stamp)
 {
 	_sys_cache << time_stamp << ",";
-	for (auto value : datas)
+	for (int i = 0; i < Sys_Total; i++)
 	{
-		_sys_cache << value << ',';
+		datas[i] > 0.0 ? _sys_cache << datas[i] : _sys_cache << " ";
+		i == (Sys_Total - 1) ? _sys_cache << "\n" : _sys_cache << ",";
 	}
-	_sys_cache << "\n";
-	
 	/*
 	if (0 == _sys_csv.tellp() % 1024)
 		_sys_csv.flush();
@@ -70,11 +69,11 @@ void WinPerfMonDataHandler::WriteSysPrefLine(const std::array<double, Sys_Total>
 void WinPerfMonDataHandler::WriteNetPrefLine(const std::array<double, Net_Total>& datas, time_t time_stamp)
 {
 	_net_cache << time_stamp << ",";
-	for (auto value : datas)
+	for (int i = 0; i < Net_Total; i++)
 	{
-		_net_cache << value << ',';
+		datas[i] > 0.0 ? _net_cache << datas[i] : _net_cache << " ";
+		i == (Net_Total - 1) ? _net_cache << "\n" : _net_cache << ",";
 	}
-	_net_cache << "\n";
 	_net_line += 1;
 	if (0 == _net_line % 100)
 	{
@@ -87,11 +86,11 @@ void WinPerfMonDataHandler::WriteNetPrefLine(const std::array<double, Net_Total>
 void WinPerfMonDataHandler::WriteProcPrefLine(const std::array<double, Proc_Total>& datas, time_t time_stamp)
 {
 	_proc_cache << time_stamp << ",";
-	for (auto value : datas)
+	for (int i = 0; i < Proc_Total; i++)
 	{
-		_proc_cache << value << ',';
+		datas[i] > 0.0 ? _proc_cache << datas[i] : _proc_cache << " ";
+		i == (Proc_Total - 1) ? _proc_cache << "\n" : _proc_cache << ",";
 	}
-	_proc_cache << "\n";
 	_proc_line += 1;
 	if (0 == _proc_line % 100)
 	{

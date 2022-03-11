@@ -5,29 +5,22 @@
 #include <string>
 #include <array>
 
+#include <array>
+
 #include "PerfMonDataDef.h"
+#include "LocalBackup.h"
 
 class WinPerfMonDataHandler
 {
 private:
-	std::ofstream _proc_csv;
-	std::stringstream _proc_cache;
-	int _proc_line;
-	std::ofstream _sys_csv;
-	std::stringstream _sys_cache;
-	int _sys_line;
-	std::ofstream _net_csv;
-	std::stringstream _net_cache;
-	int _net_line;
+	bool _is_send_metric;
+	LocalBackup _local_backup;
 
 public:
-	WinPerfMonDataHandler();
-	~WinPerfMonDataHandler();
-	
-	/* save as csv file */
-	void OpenCsvFile(const std::string& name = "");
-	void WriteSysPrefLine(const std::array<double, Sys_Total>& datas, time_t time_stamp);
-	void WriteNetPrefLine(const std::array<double, Net_Total>& datas, time_t time_stamp);
-	void WriteProcPrefLine(const std::array<double, Proc_Total>& datas, time_t time_stamp);
+	WinPerfMonDataHandler(const std::string& local_file_name = "");
+
+	void HandleSysData(const std::array<double, Sys_Total>& datas, time_t time_stamp);
+	void HandleNetData(const std::array<double, Net_Total>& datas, time_t time_stamp);
+	void HandleProcData(const std::array<double, Proc_Total>& datas, time_t time_stamp);
 };
 

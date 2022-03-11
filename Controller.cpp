@@ -68,8 +68,7 @@ void Controller::Work()
 	std::array<double, Sys_Total> sys_arry;
 	std::array<double, Proc_Total> proc_arry;
 	std::array<double, Net_Total> net_arry;
-	WinPerfMonDataHandler dataHandler;
-	dataHandler.OpenCsvFile(this->_task_name);
+	WinPerfMonDataHandler dataHandler(this->_task_name);
 	time_t time = 0;
 	int cpu_cout = monitor.GetCPUCount();
 	while (_run)
@@ -86,8 +85,8 @@ void Controller::Work()
 		proc_arry[Proc_Thread_Count] = monitor.GetProcPref(Proc_Thread_Count);
 		proc_arry[Proc_Kernal_Handle_Count] = monitor.GetProcPref(Proc_Kernal_Handle_Count);
 		proc_arry[Proc_Virtual_Mem] = monitor.GetProcPref(Proc_Virtual_Mem);
-		dataHandler.WriteSysPrefLine(sys_arry, time);
-		dataHandler.WriteNetPrefLine(net_arry, time);
-		dataHandler.WriteProcPrefLine(proc_arry, time);
+		dataHandler.HandleSysData(sys_arry, time);
+		dataHandler.HandleNetData(net_arry, time);
+		dataHandler.HandleProcData(proc_arry, time);
 	}
 }

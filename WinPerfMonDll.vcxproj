@@ -91,6 +91,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;WINPERFMONDLL_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>..\..\CppThirdPart\json\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -126,7 +127,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;WINPERFMONDLL_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\..\CppThirdPart\configor-0.9.14\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\CppThirdPart\json\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -159,18 +160,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Controller.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Help.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PerfMonDataDef.h" />
-    <ClInclude Include="SysSysSnapshot.h" />
-    <ClInclude Include="WinPerfMon.h" />
+    <ClInclude Include="SysInfo.h" />
+    <ClInclude Include="WinPerfCounter.h" />
     <ClInclude Include="WinPerfMonDataHandler.h" />
     <ClInclude Include="WinPerfMonInterface.h" />
+    <ClInclude Include="WinPerfMonitor.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Controller.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Help.cpp" />
     <ClCompile Include="pch.cpp">
@@ -179,10 +179,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="SysSnapshot.cpp" />
-    <ClCompile Include="WinPerfMon.cpp" />
+    <ClCompile Include="SysInfo.cpp" />
+    <ClCompile Include="WinPerfCounter.cpp" />
     <ClCompile Include="WinPerfMonDataHandler.cpp" />
     <ClCompile Include="WinPerfMonInterface.cpp" />
+    <ClCompile Include="WinPerfMonitor.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -3,24 +3,26 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <array>
-
-#include <array>
+#include <vector>
 
 #include "PerfMonDataDef.h"
-#include "LocalBackup.h"
 
 class WinPerfMonDataHandler
 {
 private:
-	bool _is_send_metric;
-	LocalBackup _local_backup;
+	bool _is_save_in_local;
+	std::string _file_name;
+	std::ofstream _sys_file;
+	std::ofstream _net_file;
+	std::ofstream _proc_file;
 
 public:
-	WinPerfMonDataHandler(const std::string& local_file_name = "");
+	WinPerfMonDataHandler() : _is_save_in_local(true) {}
+	~WinPerfMonDataHandler();
+	void SetLocalFileName(const std::string& name);
 
-	void HandleSysData(const std::array<double, Sys_Total>& datas, time_t time_stamp);
-	void HandleNetData(const std::array<double, Net_Total>& datas, time_t time_stamp);
-	void HandleProcData(const std::array<double, Proc_Total>& datas, time_t time_stamp);
+	void HandleSysData(const SysPerfData& data);
+	void HandleNetData(const NetPerfData& data);
+	void HandleProcData(const std::vector<ProcPerfData>& data);
 };
 

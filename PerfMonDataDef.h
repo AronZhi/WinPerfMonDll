@@ -29,3 +29,37 @@ enum ProcPerfField
 	Proc_Virtual_Mem,
 	Proc_Total
 };
+
+struct SysPerfData
+{
+	uint64_t time;
+	double sys_cpu_time;
+	double sys_cpu_perf;
+	double sys_cpu_freq;
+	double sys_mem;
+
+	SysPerfData() : time(0), sys_cpu_time(ERROR_PERF_VALE), sys_cpu_perf(ERROR_PERF_VALE), sys_cpu_freq(ERROR_PERF_VALE),
+		sys_mem(ERROR_PERF_VALE) {}
+};
+
+struct NetPerfData
+{
+	uint64_t time;
+	double net_received;
+	double net_sent;
+
+	NetPerfData() : time(0), net_received(ERROR_PERF_VALE), net_sent(ERROR_PERF_VALE) {}
+};
+
+struct ProcPerfData
+{
+	std::string proc_name;
+	uint64_t time;
+	double proc_cpu_time;
+	double proc_thread_count;
+	double proc_kernal_handle_Count;
+	double proc_virtual_mem;
+	
+	ProcPerfData() : proc_name(""), time(0), proc_cpu_time(ERROR_PERF_VALE), proc_thread_count(ERROR_PERF_VALE),
+		proc_kernal_handle_Count(ERROR_PERF_VALE), proc_virtual_mem(ERROR_PERF_VALE) {}
+};

@@ -8,6 +8,7 @@
 #include "PerfMonDataDef.h"
 #include "WinPerfMonDataHandler.h"
 #include "nlohmann/json.hpp"
+#include "AmqpClient.h"
 
 WinPerfMonitor::~WinPerfMonitor()
 {
@@ -22,6 +23,8 @@ bool WinPerfMonitor::Start(std::string json_param)
 			return false;
 		else
 			_run = true;
+
+		AmqpClient::GetInstance().Login("10.224.78.182", 5672, "tatest", "P@ss1234", "test");
 
 		auto Work = [&](std::string json_param){
 			nlohmann::json param = nlohmann::json::parse(json_param);
@@ -38,8 +41,6 @@ bool WinPerfMonitor::Start(std::string json_param)
 					counter.AddProcessCounter(el.value().get<std::string>());
 				else if (el.key() == "pid")
 					counter.AddProcessCounter(el.value().get<DWORD>());
-				else if (el.key() == "task_name")
-					handler.SetLocalFileName(el.value().get<std::string>());
 			}
 			SysPerfData sys_data;
 			NetPerfData net_data;
@@ -69,6 +70,7 @@ bool WinPerfMonitor::Start(std::string json_param)
 
 int WinPerfMonitor::Stop()
 {
+	int ret = 0;
 	try
 	{
 		if (_run)
@@ -82,7 +84,8 @@ int WinPerfMonitor::Stop()
 	{
 		std::cout << e.what() << std::endl;
 		std::cout << "stop thread fail, please restart process" << std::endl;
-		return -1;
+		ret = -1;
 	}
-	return 0;
+	AmqpClient::GetInstance().Logout();
+	return ret;
 }

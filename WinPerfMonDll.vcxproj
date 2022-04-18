@@ -91,7 +91,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;WINPERFMONDLL_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\..\CppThirdPart\json\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\CppThirdPart\json\include\;..\..\CppThirdPart\rabbitmq-c\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -127,7 +127,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;WINPERFMONDLL_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\..\CppThirdPart\json\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\CppThirdPart\json\include\;..\..\CppThirdPart\rabbitmq-c\include\;C:\WorkSpace\Test\CppThirdPart\rabbitmq-c\build\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -135,7 +135,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>Pdh.lib;IPHlpApi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Pdh.lib;IPHlpApi.lib;rabbitmq.4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\WorkSpace\Test\CppThirdPart\rabbitmq-c\build\librabbitmq\Release\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -149,7 +150,7 @@
       <PreprocessorDefinitions>NDEBUG;WINPERFMONDLL_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\..\CppThirdPart\json\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\CppThirdPart\json\include\;..\..\CppThirdPart\rabbitmq-c\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -161,6 +162,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AmqpChannel.h" />
+    <ClInclude Include="AmqpClient.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Help.h" />
     <ClInclude Include="pch.h" />
@@ -172,6 +175,8 @@
     <ClInclude Include="WinPerfMonitor.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AmqpChannel.cpp" />
+    <ClCompile Include="AmqpClient.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Help.cpp" />
     <ClCompile Include="pch.cpp">

@@ -11,7 +11,7 @@ private:
 	std::thread _workThread;
 
 private:
-	WinPerfMonitor() : _run(false) {}
+	WinPerfMonitor() : _run(true) {}
 	WinPerfMonitor(const WinPerfMonitor&) = delete;
 	WinPerfMonitor& operator =(const WinPerfMonitor&) = delete;
 

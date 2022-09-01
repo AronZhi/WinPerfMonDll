@@ -87,10 +87,6 @@ double WinPerfCounter::_GetCounterDoubleValue(HCOUNTER counter)
 	{
 		ret_value = pdhValue.doubleValue;
 	}
-	else
-	{
-		std::cout << "Get Value Error " << res << std::endl;
-	}
 	return ret_value;
 }
 
@@ -107,11 +103,8 @@ void WinPerfCounter::AddNetCounter(const std::string& net_adapter_name)
 	if (INVALID_HANDLE_VALUE == _query_handle)
 		return;
 	std::string adapter(net_adapter_name);
-	if (adapter == "")
-	{
-		SysInfo snapshot;
-		snapshot.GetNetAdapterName(adapter);
-	}
+	std::replace(adapter.begin(), adapter.end(), '(', '[');
+	std::replace(adapter.begin(), adapter.end(), ')', ']');
 	_AddCounter("\\Network Interface(" + adapter + ")\\Bytes Received/sec", &_netCounters[Net_Received]);
 	_AddCounter("\\Network Interface(" + adapter + ")\\Bytes Sent/sec", &_netCounters[Net_Sent]);
 }

@@ -9,6 +9,7 @@
 #include "WinPerfMonDataHandler.h"
 #include "nlohmann/json.hpp"
 #include "AmqpClient.h"
+#include "MachineInfo.h"
 
 WinPerfMonitor::~WinPerfMonitor()
 {
@@ -19,25 +20,21 @@ bool WinPerfMonitor::Start(std::string json_param)
 {
 	try
 	{
-		if (_run)
+		if (!_run)
 			return false;
-		else
-			_run = true;
 
 		AmqpClient::GetInstance().Login("10.224.78.182", 5672, "tatest", "P@ss1234", "test");
 
 		auto Work = [&](std::string json_param){
 			nlohmann::json param = nlohmann::json::parse(json_param);
-			WinPerfMonDataHandler handler;
-			WinPerfCounter counter;
+			MachineInfo machine;
+			WinPerfMonDataHandler handler(machine.GetHostName(), machine.GetCpuCount());
+			WinPerfCounter counter(3);
 			counter.AddSysCounter();
+			counter.AddNetCounter(machine.GetNetAdapter());
 			for (auto& el : param.items())
 			{
-				if (el.key() == "sample_interval")
-					counter.SetSampleInterval(el.value().get<int>());
-				else if (el.key() == "net_adapter")
-					counter.AddNetCounter(el.value().get<std::string>());
-				else if (el.key() == "process")
+				if (el.key() == "process")
 					counter.AddProcessCounter(el.value().get<std::string>());
 				else if (el.key() == "pid")
 					counter.AddProcessCounter(el.value().get<DWORD>());

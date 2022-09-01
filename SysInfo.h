@@ -15,8 +15,6 @@ protected:
 	void _ListProcessThread(DWORD pid);
 
 public:
-	bool GetNetAdapterName(std::string& ret);
 	bool GetProcAndChildProcName(const std::string& exe, std::vector<std::string>& ret);
 	bool GetProcAndChildProcName(DWORD pid, std::vector<std::string>& ret);
-	int GetCpuCount();
 };

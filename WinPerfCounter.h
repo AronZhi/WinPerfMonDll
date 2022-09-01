@@ -36,7 +36,7 @@ public:
 	void GetProcPref(std::vector<ProcPerfData>& ret);
 
 	void AddSysCounter();
-	void AddNetCounter(const std::string& net_adapter_name = "");
+	void AddNetCounter(const std::string& net_adapter_name);
 	void AddProcessCounter(const std::string& process_exe);
 	void AddProcessCounter(DWORD pid);
 	void BlockCollectData();

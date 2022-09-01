@@ -9,40 +9,6 @@
 
 #include "Help.h"
 
-bool SysInfo::GetNetAdapterName(std::string& ret)
-{
-	ULONG ulSize = 0;
-	std::shared_ptr<IP_ADAPTER_INFO> pAdapterArr = nullptr;
-	PDH_STATUS res = GetAdaptersInfo(pAdapterArr.get(), &ulSize);
-	if (ERROR_BUFFER_OVERFLOW == res)
-	{
-		pAdapterArr.reset(new IP_ADAPTER_INFO[ulSize]);
-		res = GetAdaptersInfo(pAdapterArr.get(), &ulSize);
-	}
-	if (ERROR_SUCCESS != res)
-	{
-		std::cout << "Get Adapters Info fail" << std::endl;
-		return false;
-	}
-	IPAddr ipAddr = { 0 };
-	DWORD dwIndex = -1;
-	DWORD nRet = GetBestInterface(ipAddr, &dwIndex);
-	if (NO_ERROR != nRet)
-		std::cout << "Get Best Interface fail: " << nRet << std::endl;
-	bool find = false;
-	for (auto *pCur = pAdapterArr.get(); pCur != NULL; pCur = pCur->Next) {
-		if (pCur->Index == dwIndex) {
-			ret = pCur->Description;
-			std::replace(ret.begin(), ret.end(), '(', '[');
-			std::replace(ret.begin(), ret.end(), ')', ']');
-			std::cout << std::endl << "Adapter Descrip: " << ret << std::endl;
-			find = true;
-			break;
-		}
-	}
-	return find;
-}
-
 bool SysInfo::_GetChildProcName(DWORD parent_pid, HANDLE hProcessSnap, std::vector<std::string>& ret_names)
 {
 	PROCESSENTRY32 pe32;
@@ -252,12 +218,4 @@ void SysInfo::_ListProcessThread(DWORD pid)
 		}
 	}
 	CloseHandle(hThreadSnap);
-}
-
-int SysInfo::GetCpuCount()
-{
-	SYSTEM_INFO sys_info;
-	GetSystemInfo(&sys_info);
-	int count = int(sys_info.dwNumberOfProcessors);
-	return count;
 }

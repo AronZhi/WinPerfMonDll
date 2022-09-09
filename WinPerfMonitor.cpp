@@ -20,7 +20,7 @@ bool WinPerfMonitor::Start(std::string json_param)
 {
 	try
 	{
-		if (!_run)
+		if (!_run.load())
 			return false;
 
 		AmqpClient::GetInstance().Login("10.224.78.182", 5672, "tatest", "P@ss1234", "test");
@@ -43,7 +43,7 @@ bool WinPerfMonitor::Start(std::string json_param)
 			NetPerfData net_data;
 			std::vector<ProcPerfData> proc_data;
 			std::cout << "start loop" << std::endl;
-			while(_run)
+			while(_run.load())
 			{
 				counter.BlockCollectData();
 				counter.GetSysPref(sys_data);
@@ -70,9 +70,9 @@ int WinPerfMonitor::Stop()
 	int ret = 0;
 	try
 	{
-		if (_run)
+		bool stoped = false;
+		if (_run.compare_exchange_strong(stoped, false))
 		{
-			_run = false;
 			_workThread.join();
 			std::cout << "stop monitor" << std::endl;
 		}
